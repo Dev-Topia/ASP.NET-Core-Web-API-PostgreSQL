@@ -103,3 +103,4 @@ C:\RUPP\ITE Year 3\Semester 2\Backend\WebApiWithPostgreSQL\obj\Debug\net8.0\refi
 C:\RUPP\ITE Year 3\Semester 2\Backend\WebApiWithPostgreSQL\obj\Debug\net8.0\WebApiWithPostgreSQL.pdb
 C:\RUPP\ITE Year 3\Semester 2\Backend\WebApiWithPostgreSQL\obj\Debug\net8.0\WebApiWithPostgreSQL.genruntimeconfig.cache
 C:\RUPP\ITE Year 3\Semester 2\Backend\WebApiWithPostgreSQL\obj\Debug\net8.0\ref\WebApiWithPostgreSQL.dll
+C:\RUPP\ITE Year 3\Semester 2\Backend\WebApiWithPostgreSQL\obj\Debug\net8.0\WebApiWithPostgreSQL.sourcelink.json

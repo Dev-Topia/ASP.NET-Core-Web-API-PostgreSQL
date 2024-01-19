@@ -3,14 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ComputerTopiaStoreApi.Models
 {
-    [Table("Users", Schema = "public")]
+    [Table("user")]
     public class User
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public string? LastName { get; set; }
-        public int Age { get; set; }
+        [Column("user_id")]
+        public int UserId { get; set; }
+        [Column("username")]
+        public string? Username { get; set; }
+        [Column("email")]
+        public string? Email { get; set; }
+        [Column("phone_number")]
+        public string? PhoneNumber { get; set; }
     }
 }
