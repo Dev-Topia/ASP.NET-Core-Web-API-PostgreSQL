@@ -3,17 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiWithPostgreSQL.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class StatusController : ControllerBase
     {
-        [Authorize]
-        [HttpGet("auth", Name = "AuthStatus")]
-        public ActionResult AuthStatus()
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AuthAdmin()
         {
             var response = new
             {
-                Message = "Auth is up!.",
+                Message = "Auth is up for admin!",
+                ServerTime = DateTime.Now
+            };
+            return Ok(response);
+        }
+        [HttpGet("user")]
+        [Authorize(Roles = "User")]
+        public ActionResult AuthUser()
+        {
+            var response = new
+            {
+                message = "Auth is up for user!",
                 ServerTime = DateTime.Now
             };
             return Ok(response);

@@ -1,7 +1,13 @@
-using Microsoft.AspNetCore.Authentication;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using WebApiWithPostgreSQL.Auth;
+using Swashbuckle.AspNetCore.Filters;
+using WebApiWithPostgreSQL.Contracts;
+using WebApiWithPostgreSQL.Data;
+using WebApiWithPostgreSQL.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,35 +18,44 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-    c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "basic",
-        In = ParameterLocation.Header,
-        Description = "Basic Authorization header."
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "basic"
-                }
-            },
-            new string[] {}
-        }
-    });
-});
 builder.Services.AddControllers();
-builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+// Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+.AddEntityFrameworkStores<AppDbContext>()
+.AddSignInManager()
+.AddRoles<IdentityRole>();
+// JWT
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+});
+// Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+builder.Services.AddScoped<IUserAccount, AccountRepository>();
+builder.Services.AddScoped<ILaptop, LaptopRepository>();
 
 var app = builder.Build();
 
@@ -53,6 +68,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
